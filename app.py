@@ -7,13 +7,15 @@ import asyncio
 from functools import wraps
 from threading import Thread
 from time import time
-
-load_dotenv()
+from flask_cors import CORS
+load_dotenv(dotenv_path=".env")
 
 app = Flask(__name__)
 
 user_service_url = os.getenv("USER_SERVICE_URL")
+print("User service: ", user_service_url)
 item_service_url = os.getenv("ITEM_SERVICE_URL")
+CORS(app, resources={r"/*": {"origins": "http://3.147.35.222:4200"}})
 
 # Middleware for logging
 def log_middleware(f):
@@ -114,8 +116,7 @@ async def fetch_async(resource_id):
     async with httpx.AsyncClient() as client:
         user_request = client.get(f"{user_service_url}/users/{resource_id}")
         item_request = client.get(f"{item_service_url}/items/{resource_id}")
-        
-        user_response, item_response = await asyncio.gather(user_task, item_task)
+        user_response, item_response = await asyncio.gather(user_request, item_request)
 
         return jsonify({
             'user': user_response.json(),
