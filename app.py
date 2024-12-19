@@ -33,24 +33,31 @@ def log_middleware(f):
 @log_middleware
 def main_resource():
     if request.method == 'GET':
+        
+        #print("DATA", data)
+        print("GETTING THROUGH GET METHOD")
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 10, type=int)
-        username_filter = request.args.get('username')
-
-        user_response = requests.get(f"{user_service_url}/users", params={'page': page, 'per_page': per_page, 'username': username_filter})
-        item_response = requests.get(f"{item_service_url}/items", params={'page': page, 'per_page': per_page})
-        
+        #if 'name' in data:
+        #    print("GETTING THROUGH")
+        #    item_response = requests.get(f"{item_service_url}/items", params={'page': page, 'per_page': per_page})
+        #    return jsonify({'item': item_response.json()})
+        #username_filter = request.args.get('username')
+        #user_response = requests.get(f"{user_service_url}/users", params={'page': page, 'per_page': per_page, 'username': username_filter})
+        item_response = requests.get(f"{item_service_url}/items", params={'page': page, 'per_page': per_page})        
         return jsonify({
-            'users': user_response.json(),
+         #   'users': user_response.json(),
             'items': item_response.json()
         })
 
     elif request.method == 'POST':
         data = request.json
+        if 'name' in data:
+            print("WE HAVE A FOOD NAME IN THE DATA")
+            item_response = requests.post(f"{item_service_url}/items", json=data)
+            return jsonify(item_response.json()), item_response.status_code
         user_response = requests.post(f"{user_service_url}/users", json=data)
         return jsonify(user_response.json()), user_response.status_code
-
-
 @app.route('/api/mainResource/<int:resource_id>', methods=['GET', 'PUT'])
 @log_middleware
 def main_resource_id(resource_id):
